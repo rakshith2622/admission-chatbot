@@ -7,4 +7,4 @@ langchain-google-genai
 faiss-cpu
 pypdf
 langchain-huggingface
-langchain-text-splitter
+langchain-text-splitters
