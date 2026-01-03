@@ -1,6 +1,7 @@
 import os
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
+from backend.ingest import build_vectorstore
 
 # ------------------ PATH SETUP ------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,16 +12,29 @@ embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 
-# ------------------ LOAD VECTORSTORE ------------------
+# ------------------ LOAD / BUILD VECTORSTORE ------------------
+vectorstore = None
+
+# If vectorstore does not exist, build it from PDFs
+if not os.path.exists(VECTORSTORE_PATH):
+    print("⚠️ Vectorstore not found. Building from PDFs...")
+    try:
+        build_vectorstore()
+    except Exception as e:
+        print("❌ Failed to build vectorstore:", e)
+
+# Try loading vectorstore
 try:
     vectorstore = FAISS.load_local(
         VECTORSTORE_PATH,
         embeddings,
         allow_dangerous_deserialization=True
     )
+    print("✅ Vectorstore loaded successfully")
 except Exception as e:
     print("❌ Failed to load vectorstore:", e)
     vectorstore = None
+
 
 # ------------------ HELPERS ------------------
 def clean_text(text: str) -> str:
@@ -67,7 +81,7 @@ def get_answer(question: str):
     if vectorstore is None:
         return {
             "short_answer": "Knowledge base is not available.",
-            "full_answer": "Vectorstore failed to load. Please contact administrator."
+            "full_answer": "Vectorstore is not ready. Please contact administrator."
         }
 
     docs = vectorstore.similarity_search(question, k=4)
@@ -90,3 +104,4 @@ def get_answer(question: str):
         "short_answer": short_answer,
         "full_answer": f"{full_answer}\n\n(Source: University Admission Documents)"
     }
+    
