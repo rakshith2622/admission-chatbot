@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.schemas import ChatRequest
 
-from rag import get_answer
+from backend.rag import get_answer
+
 from admin_api import router as admin_router
 
 app = FastAPI(title="Admission Chatbot API")
