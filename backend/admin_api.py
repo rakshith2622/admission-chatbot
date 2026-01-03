@@ -2,7 +2,8 @@ from fastapi import APIRouter, UploadFile, File, Header, HTTPException
 import os
 import shutil
 from dotenv import load_dotenv
-from ingest import create_vectorstore
+from backend.ingest import build_vectorstore
+
 
 load_dotenv()
 
